@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🦉 フクロウくん集計ツール</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Hiragino Sans', 'Yu Gothic UI', 'Meiryo', sans-serif;
+      background: linear-gradient(135deg, #E2BD53 0%, #D4A843 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      padding: 40px;
+      max-width: 450px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .owl-icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    h1 {
+      color: #2c3e50;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      color: #7f8c8d;
+      font-size: 0.9rem;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      color: #34495e;
+      font-weight: 500;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 15px 20px;
+      border: 2px solid #e0e6ed;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #E2BD53;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(226, 189, 83, 0.2);
+    }
+
+    .calculate-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #E2BD53 0%, #D4A843 100%);
+      color: white;
+      border: none;
+      padding: 18px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 20px 0;
+    }
+
+    .calculate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(226, 189, 83, 0.4);
+    }
+
+    .calculate-btn:active {
+      transform: translateY(0);
+    }
+
+    .result {
+      background: linear-gradient(135deg, #E2BD53 0%, #F0D478 100%);
+      color: white;
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      box-shadow: 0 10px 30px rgba(226, 189, 83, 0.3);
+    }
+
+    .result strong {
+      display: block;
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
+    .positive {
+      color: #2ecc71;
+      background: white;
+      padding: 10px 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    .negative {
+      color: #e74c3c;
+      background: white;
+      padding: 10px 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    .neutral {
+      color: #3498db;
+      background: white;
+      padding: 10px 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 30px 25px;
+        margin: 10px;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .owl-icon {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <span class="owl-icon">🦉</span>
+      <h1>フクロウくん集計ツール</h1>
+      <div class="subtitle">かんたん収支計算</div>
+    </div>
+    
+    <div class="form-group">
+      <label for="score">📊 スコア</label>
+      <input type="number" id="score" step="0.1" value="30" data-default="30" placeholder="例：30">
+    </div>
+    
+    <div class="form-group">
+      <label for="credit">💳 クレカ支払い額</label>
+      <input type="number" id="credit" step="0.1" value="0" data-default="0" placeholder="例：16">
+    </div>
+
+    <div class="form-group">
+      <label for="rate">📈 歩合率</label>
+      <input type="number" id="rate" step="0.01" value="0.5" data-default="0.5" placeholder="例：0.5">
+    </div>
+
+    <button class="calculate-btn" onclick="calculate()">
+      🧮 計算する
+    </button>
+
+    <div class="result" id="output" style="display: none;">
+      結果がここに表示されます
+    </div>
+  </div>
+
+  <script>
+    // 初期値を記憶してフォーカス時に消去し、フォーカスアウト時に復元
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+      const defaultValue = input.getAttribute('data-default');
+
+      input.addEventListener('focus', () => {
+        if (input.value === defaultValue) {
+          input.value = '';
+        }
+      });
+
+      input.addEventListener('blur', () => {
+        if (input.value === '') {
+          input.value = defaultValue;
+        }
+      });
+    });
+
+    function calculate() {
+      const score = parseFloat(document.getElementById('score').value) || 0;
+      const credit = parseFloat(document.getElementById('credit').value) || 0;
+      const rate = parseFloat(document.getElementById('rate').value) || 0;
+
+      const amountReceived = (score * 1000 * rate) - (credit * 1000 * 0.04);
+      const cashReceived = (score - credit) * 1000;
+      const diff = amountReceived - cashReceived;
+
+      let summary = `<strong>💰 貰う額: ${amountReceived.toLocaleString()}円</strong>`;
+
+      if (diff > 0) {
+        summary += `<div class="positive">🎉 会社からもらう額: ${diff.toLocaleString()}円</div>`;
+      } else if (diff < 0) {
+        summary += `<div class="negative">💸 会社に渡す額: ${Math.abs(diff).toLocaleString()}円</div>`;
+      } else {
+        summary += `<div class="neutral">⚖️ 収支は±0円です</div>`;
+      }
+
+      const outputElement = document.getElementById('output');
+      outputElement.innerHTML = summary;
+      outputElement.style.display = 'block';
+      
+      // スムーズにスクロール
+      outputElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Enterキーで計算実行
+    document.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        calculate();
+      }
+    });
+  </script>
+</body>
+</html>
